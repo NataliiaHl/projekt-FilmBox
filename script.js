@@ -1,5 +1,3 @@
-console.log('Funguju!')
-
 const filmy = [
 	{
 		id: 'pelisky',
@@ -106,3 +104,193 @@ const filmy = [
 		premiera: '2022-12-24',
 	},
 ]
+
+const menuBtn = document.querySelector('#menu-tlacitko')
+let change = 0
+const addMenu = (event) => {
+	document.querySelector('#menu-polozky').classList.toggle('show')
+	console.log(event.target)
+	if (change === 0) {
+		event.target.classList.remove('fa-bars')
+		event.target.classList.add('fa-xmark')
+		change = 1
+	} else {
+		event.target.classList.add('fa-bars')
+		event.target.classList.remove('fa-xmark')
+		change = 0
+	}
+}
+menuBtn.addEventListener('click', addMenu)
+
+const list = document.querySelector('#seznam-filmu')
+if (list) {
+	filmy.forEach((film) => {
+		const card = `
+		<div class="col">
+			<div class="card">
+				<img
+					src=${film.plakat.url}
+					width=${film.plakat.sirka}
+					height=${film.plakat.vyska}
+					class="card-img-top"
+					alt="plakát"
+				/>
+				<div class="card-body">
+					<h5 class="card-title">${film.nazev}</h5>
+					<p class="card-text">${film.ochutnavka}</p>
+					<a href="film.html#${film.id}" class="btn btn-primary">Přehrát</a>
+				</div>
+			</div>
+		</div>`
+		list.innerHTML += card
+	})
+}
+
+
+const filmDetail = document.querySelector('#detail-filmu')
+if (filmDetail) {
+	filmy.forEach((film) => {
+		if (film.id === location.hash.slice(1)) {
+			const date = dayjs(film.premiera).format('D. M. YYYY')
+			const difference = dayjs(film.premiera).diff(dayjs(), 'days')
+		
+			document.querySelector('.col-md-5').innerHTML = `
+			<img
+			src=${film.plakat.url}
+			alt="plakát"
+			class="img-fluid rounded-start"
+			width="663"
+			height="909"
+			/>`
+			document.querySelector('.card-title').textContent = film.nazev
+			document.querySelector('.card-text').textContent = film.popis
+
+			if (difference > 0) {
+				document.querySelector('.text-muted').innerHTML = `Premiéra <strong>${date}</strong>, což je za ${difference} dní.`
+			} else {
+				document.querySelector('.text-muted').innerHTML = `Premiéra <strong>${date}</strong>, což bylo před ${Math.abs(difference)}
+				dny.`
+			}
+		}
+	})
+}
+
+const starsEL = document.querySelectorAll('.fa-star')
+const setRating = (stars) => {
+	const length = stars.length
+	stars.forEach((star, index) => {
+		
+		star.onclick = () => {
+
+			for (let i = 0; i < length; i++) {
+				if (i <= index) {
+					stars[i].classList.remove('far')
+					stars[i].classList.add('fas')
+				} else {
+					stars[i].classList.remove('fas')
+					stars[i].classList.add('far')
+				}
+			}
+		}
+
+		star.onmouseenter = () => {
+
+			for (let i = 0; i < length; i++) {
+				if (i <= index) {
+					stars[i].classList.remove('far')
+					stars[i].classList.add('fas')
+				} else {
+					stars[i].classList.remove('fas')
+					stars[i].classList.add('far')
+				}
+			}
+		}
+	})
+}
+setRating(starsEL)
+
+
+const form = document.querySelector('#note-form')
+const message = document.querySelector('#message-input')
+const checkbox = document.querySelector('#terms-checkbox')
+if (form) {
+	form.addEventListener('submit', (event) => {
+	if (message.value === '') {
+		message.classList.add('is-invalid')
+		message.focus()
+	} else {
+		message.classList.remove('is-invalid')
+		if (checkbox.checked === false) {
+			checkbox.classList.add('is-invalid')
+			checkbox.focus()
+		} else {
+			checkbox.classList.remove('is-invalid')
+			form.innerHTML = `<p class="card-text">${message.value}</p>`
+		}
+	}
+	
+		event.preventDefault()
+	})
+}
+
+const player = document.querySelector('#prehravac')
+const video = document.querySelector('video')
+if (player) {
+	document.querySelector('.play').addEventListener('click', (event) => {
+		video.play()
+		player.classList.add('playing')
+	})
+	document.querySelector('.pause').addEventListener('click', (event) => {
+		video.pause()
+		player.classList.remove('playing')
+	})
+
+	video.addEventListener("timeupdate", (event) => { 
+		let minutes = Math.floor(video.currentTime / 60)
+		let seconds = Math.floor(video.currentTime % 60)
+		minutes = String(minutes).padStart(2, '0')
+		seconds = String(seconds).padStart(2, '0')
+		document.querySelector('.current-time').innerHTML = `${minutes}:${seconds}`
+	})
+	
+	document.addEventListener('keydown', (event) => {
+		if (event.code === "Space"  &&
+			event.target.tagName !== 'TEXTAREA' &&
+			event.target.tagName !== 'INPUT' &&
+			event.target.tagName !== 'BUTTON'
+			)  {
+			if (video.paused) {
+			  video.play();
+			  prehravac.classList.add('playing')
+			} else {
+			  video.pause();
+			  prehravac.classList.remove('playing')
+			}
+		}
+	})
+
+	
+	const playerControl = document.querySelector('.player-controls')
+	let timer
+	const hidePanel = () => {
+		playerControl.classList.add('hidden')
+	}
+	const resetTimer = () => {
+		playerControl.classList.remove('hidden')
+		clearTimeout(timer);
+		timer = setTimeout(hidePanel, 3000);
+	}
+	 
+	document.addEventListener('mousemove', resetTimer);
+	document.addEventListener('keydown', resetTimer);
+	resetTimer();
+	
+}
+
+ 
+
+
+
+
+
+
